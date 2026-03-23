@@ -179,15 +179,17 @@
     to   { transform: translateX(-50%); }
   }
 
-  .nav-area {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 12%;
-    display: flex;
-    z-index: 20;
-  }
+.nav-area {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80px;
+  background: #fff;
+  border-top: 1px solid #e5e5e5;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 999;
+}
 
   .nav-btn {
     flex: 1;
