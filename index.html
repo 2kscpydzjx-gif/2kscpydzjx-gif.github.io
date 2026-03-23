@@ -48,7 +48,7 @@
   }
 
   .hidden {
-    display: none;
+    display: none !important;
   }
 
   .main-bg,
@@ -120,13 +120,12 @@
     display: block;
   }
 
-  /* Стрічка тепер перевертається разом із карткою */
   .ticker-wrapper {
     position: absolute;
     left: 6.2%;
     width: 87.8%;
     top: 59.72%;
-    height: 4.05%;
+    height: 3.0%;
     z-index: 7;
     transform-style: preserve-3d;
     transition: transform .75s cubic-bezier(.2,.7,.2,1);
@@ -156,7 +155,7 @@
     align-items: center;
     color: #fff;
     font-weight: 450;
-    font-size: 13px;
+    font-size: 16px;
     letter-spacing: -0.1px;
     white-space: nowrap;
     line-height: 1;
@@ -276,34 +275,34 @@
     display: block;
   }
 
-.document-ticker-bg {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 7.2%;
-  height: 2.0%;
-  background: #845f20;
-  z-index: 8;
-}
+  .document-ticker-bg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 7.2%;
+    height: 1.5%;
+    background: #845f20;
+    z-index: 8;
+  }
 
-.document-ticker {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 7.2%;
-  height: 2.0%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  color: #fff;
-  font-weight: 450;
-  font-size: 16px;
-  letter-spacing: -0.1px;
-  white-space: nowrap;
-  line-height: 1;
-  z-index: 9;
-  pointer-events: none;
-}
+  .document-ticker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 7.2%;
+    height: 1.5%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-weight: 450;
+    font-size: 16px;
+    letter-spacing: -0.1px;
+    white-space: nowrap;
+    line-height: 1;
+    z-index: 9;
+    pointer-events: none;
+  }
 
   .document-ticker .ticker-track {
     display: inline-flex;
@@ -331,7 +330,35 @@
     background: transparent;
   }
 
-  /* ВЕЛИКІ невидимі кнопки на екрані onovyty.png */
+  .update-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+  }
+
+  .update-layer.show {
+    pointer-events: auto;
+  }
+
+  .update-dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.24);
+    z-index: 0;
+  }
+
+  .update-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+    z-index: 1;
+  }
+
   .update-confirm-btn {
     position: absolute;
     left: 8%;
@@ -343,7 +370,7 @@
     padding: 0;
     margin: 0;
     cursor: pointer;
-    z-index: 30;
+    z-index: 2;
   }
 
   .update-cancel-btn {
@@ -357,10 +384,9 @@
     padding: 0;
     margin: 0;
     cursor: pointer;
-    z-index: 30;
+    z-index: 2;
   }
 
-  /* Зона свайпу зверху для закриття документа */
   .document-swipe-zone {
     position: absolute;
     top: 0;
@@ -403,6 +429,13 @@
       </div>
 
       <div class="plus-btn" id="plusBtn" aria-label="Open actions"></div>
+
+      <div class="update-layer hidden" id="updateLayer">
+        <div class="update-dim"></div>
+        <img src="onovyty_frame.png" alt="Update frame" class="update-frame">
+        <button class="update-confirm-btn" id="updateConfirmBtn" aria-label="Оновити документ"></button>
+        <button class="update-cancel-btn" id="updateCancelBtn" aria-label="Скасувати"></button>
+      </div>
     </div>
 
     <div class="plain-screen hidden" id="servicesScreen">
@@ -415,12 +448,6 @@
 
     <div class="plain-screen hidden" id="menuScreen">
       <img src="menu.png" alt="Menu">
-    </div>
-
-    <div class="plain-screen hidden" id="updateScreen">
-      <img src="onovyty.png" alt="Update">
-      <button class="update-confirm-btn" id="updateConfirmBtn" aria-label="Оновити документ"></button>
-      <button class="update-cancel-btn" id="updateCancelBtn" aria-label="Скасувати"></button>
     </div>
 
     <div class="document-screen hidden" id="documentScreen">
@@ -485,9 +512,10 @@
   const servicesScreen = document.getElementById('servicesScreen');
   const jobsScreen = document.getElementById('jobsScreen');
   const menuScreen = document.getElementById('menuScreen');
-  const updateScreen = document.getElementById('updateScreen');
   const documentScreen = document.getElementById('documentScreen');
   const documentSwipeZone = document.getElementById('documentSwipeZone');
+
+  const updateLayer = document.getElementById('updateLayer');
 
   const navHome = document.getElementById('navHome');
   const navServices = document.getElementById('navServices');
@@ -516,8 +544,8 @@
     servicesScreen.classList.add('hidden');
     jobsScreen.classList.add('hidden');
     menuScreen.classList.add('hidden');
-    updateScreen.classList.add('hidden');
     documentScreen.classList.add('hidden');
+    hideUpdateLayer();
   }
 
   function resetCard() {
@@ -543,11 +571,22 @@
     screen.classList.remove('document-mode');
   }
 
+  function showUpdateLayer() {
+    updateLayer.classList.remove('hidden');
+    updateLayer.classList.add('show');
+  }
+
+  function hideUpdateLayer() {
+    updateLayer.classList.add('hidden');
+    updateLayer.classList.remove('show');
+  }
+
   function showMain() {
     hideAllScreens();
     disableDocumentMode();
     mainScreen.classList.remove('hidden');
     closeSheet();
+    hideUpdateLayer();
     resetCard();
     window.scrollTo(0, 0);
   }
@@ -589,12 +628,8 @@
   }
 
   function showUpdate() {
-    hideAllScreens();
-    disableDocumentMode();
-    updateScreen.classList.remove('hidden');
-    resetCard();
-    closeSheet();
-    window.scrollTo(0, 0);
+    showMain();
+    showUpdateLayer();
   }
 
   function formatUpdateDateTime(date = new Date()) {
@@ -622,7 +657,7 @@
   }
 
   cardArea.addEventListener('click', () => {
-    if (!mainScreen.classList.contains('hidden')) {
+    if (!mainScreen.classList.contains('hidden') && updateLayer.classList.contains('hidden')) {
       card.classList.toggle('flipped');
       tickerWrapper.classList.toggle('flipped');
     }
@@ -641,7 +676,7 @@
   plusBtn.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!mainScreen.classList.contains('hidden')) {
+    if (!mainScreen.classList.contains('hidden') && updateLayer.classList.contains('hidden')) {
       openSheet();
     }
   });
@@ -707,7 +742,7 @@
     docTouchStartY = 0;
     docTouchCurrentY = 0;
   });
-    /* Встановити дату відкриття файлу при завантаженні */
+
   document.addEventListener('DOMContentLoaded', () => {
     updateTickerText();
   });
